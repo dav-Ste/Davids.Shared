@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path="LICENSE" />
+    <File Path=".gitignore" />
+    <File Path=".dockerignore" />
+    <File Path="eng/Davids.Common.props" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="scripts/Pack-SharedPackages.ps1" />
+    <File Path=".github/workflows/codeql.yml" />
+    <File Path=".github/workflows/pull-request-ci.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Davids.ServiceDefaults/Davids.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Davids.ServiceDefaults.Tests/Davids.ServiceDefaults.Tests.csproj" />
+  </Folder>
+</Solution>
