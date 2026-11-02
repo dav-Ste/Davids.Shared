@@ -1,5 +1,8 @@
 # Davids.Shared
 
+[![Pull Request CI — Security Gate](https://github.com/dav-Ste/Davids.Shared/actions/workflows/pull-request-ci.yml/badge.svg?branch=main)](https://github.com/dav-Ste/Davids.Shared/actions/workflows/pull-request-ci.yml)
+[![Pull Request CI — CodeQL SAST](https://github.com/dav-Ste/Davids.Shared/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/dav-Ste/Davids.Shared/actions/workflows/codeql.yml)
+
 `Davids.Shared` is the standalone .NET 10 shared library repository (`Davids.Shared.slnx`) hosting `Davids.ServiceDefaults` — the lightweight cross-cutting host defaults (health/liveness endpoints, OpenTelemetry metrics/tracing/logging exporters, `Microsoft.Extensions.ServiceDiscovery`, and optional Serilog sinks) shared across all Davids microservices and frontends.
 
 Separating `Davids.ServiceDefaults` into `Davids.Shared` allows any individual microservice repository (`Davids.Services.Customers`, `Davids.Services.Identity`, `Davids.Services.AdminIdentity`, `Davids.APIGateway`, or `Davids.Frontend.Admin`) to be cloned beside `Davids.Shared` and built, tested, and run standalone **without** cloning the `Davids` Aspire infrastructure repository.
