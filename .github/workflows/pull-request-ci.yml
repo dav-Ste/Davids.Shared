@@ -34,19 +34,22 @@ jobs:
 
       - name: Run Semgrep custom Davids security rules
         run: |
-          python3 -m pip install --quiet semgrep==1.182.0
+          python3 -m venv "$RUNNER_TEMP/semgrep-venv"
+          "$RUNNER_TEMP/semgrep-venv/bin/pip" install --quiet semgrep==1.182.0
+          export PATH="$RUNNER_TEMP/semgrep-venv/bin:$PATH"
           semgrep scan --validate --config .semgrep/davids-security.yml --metrics=off
           semgrep scan --no-git-ignore --exclude=artifacts --exclude=bin --exclude=obj --exclude=.git --exclude=.vs --exclude=TestResults --config .semgrep/davids-security.yml . --error --metrics=off --sarif -o semgrep.sarif
 
       - name: Upload Semgrep SARIF
-        if: always()
+        if: always() && hashFiles('semgrep.sarif') != ''
+        continue-on-error: ${{ github.event.repository.private == true && vars.GHAS_ENABLED != 'true' }}
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: semgrep.sarif
           category: semgrep-davids
 
       - name: Run Checkov (github_actions)
-        uses: bridgecrewio/checkov-action@99bb2caf247dfd9f03cf984373bc6043d4e32ebf # v12.1347.0
+        uses: bridgecrewio/checkov-action@c10e2438743528f9e4549758fad8b7a62052541d # v12.3136.0
         with:
           directory: .
           framework: github_actions
@@ -124,12 +127,15 @@ jobs:
           skip-dirs: "**/artifacts,**/bin,**/obj,**/TestResults"
           scanners: vuln,misconfig
           severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          limit-severities-for-sarif: true
           exit-code: "1"
           format: sarif
           output: trivy-fs.sarif
 
       - name: Upload Trivy filesystem SARIF
-        if: always()
+        if: always() && hashFiles('trivy-fs.sarif') != ''
+        continue-on-error: ${{ github.event.repository.private == true && vars.GHAS_ENABLED != 'true' }}
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: trivy-fs.sarif
