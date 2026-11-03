@@ -265,6 +265,7 @@ public sealed class ServiceDefaultsTests
         DavidsSecurityMetrics.RecordRateLimitRejection("davids-api-gateway", "gateway");
         DavidsSecurityMetrics.RecordTokenRevocation("customer", "replay_cascade");
         DavidsSecurityMetrics.RecordBffCsrfRejection("davids-api-gateway", "/auth/logout");
+        DavidsSecurityMetrics.RecordChangeAudit("customers", "profile_updated", "employee");
 
         Assert.Contains(recorded, r =>
             r.Instrument == "davids.security.login_audit" &&
@@ -284,6 +285,61 @@ public sealed class ServiceDefaultsTests
             r.Instrument == "davids.security.bff_csrf_rejected" &&
             Equals(r.Tags["service"], "davids-api-gateway") &&
             Equals(r.Tags["endpoint"], "/auth/logout"));
+        Assert.Contains(recorded, r =>
+            r.Instrument == "davids.security.change_audit" &&
+            Equals(r.Tags["service"], "customers") &&
+            Equals(r.Tags["action"], "profile_updated") &&
+            Equals(r.Tags["actor_authority"], "employee"));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void WorkforceRolesActorContextAndChangeAuditDiffEnforceZeroSecretInvariants()
+    {
+        Assert.True(DavidsRoles.TryNormalizeWorkforceRole("Support", out var normalized));
+        Assert.Equal(DavidsRoles.Support, normalized);
+        Assert.False(DavidsRoles.TryNormalizeWorkforceRole("user", out _));
+        Assert.True(DavidsRoles.CanMutateCustomers(DavidsRoles.Admin));
+        Assert.True(DavidsRoles.CanMutateCustomers(DavidsRoles.Support));
+        Assert.False(DavidsRoles.CanMutateCustomers(DavidsRoles.Auditor));
+        Assert.True(DavidsRoles.CanReadWorkforce(DavidsRoles.Auditor));
+        Assert.False(DavidsRoles.CanManageEmployees(DavidsRoles.Support));
+
+        var id = Guid.NewGuid();
+        var principal = new System.Security.Claims.ClaimsPrincipal(
+            new System.Security.Claims.ClaimsIdentity(
+            [
+                new System.Security.Claims.Claim("sub", id.ToString("N")),
+                new System.Security.Claims.Claim("email", "agent@davids.local"),
+                new System.Security.Claims.Claim("role", DavidsRoles.Support)
+            ],
+            "AdminBearer"));
+        var actor = DavidsActorContext.FromPrincipal(principal);
+        Assert.Equal(id.ToString("D"), actor.ActorSub);
+        Assert.Equal("agent@davids.local", actor.ActorEmail);
+        Assert.Equal(DavidsRoles.Support, actor.ActorRole);
+        Assert.Equal(DavidsAuthorities.Employee, actor.ActorAuthority);
+        Assert.True(actor.IsEmployee);
+
+        var diff = new ChangeAuditDiffBuilder()
+            .Compare("fullName", "Alice", "Alice Smith")
+            .Compare("address", "10 High St", "10 High St")
+            .RecordRedacted("password");
+        Assert.True(diff.HasChanges);
+        Assert.Equal(2, diff.Changes.Count);
+
+        var parsed = ChangeAuditDiffBuilder.ParseChanges(diff.BuildJson());
+        Assert.Equal(2, parsed.Count);
+        Assert.Equal("fullName", parsed[0].Field);
+        Assert.Equal("Alice", parsed[0].OldValue);
+        Assert.Equal("Alice Smith", parsed[0].NewValue);
+        Assert.Equal("password", parsed[1].Field);
+        Assert.Equal(ChangeAuditDiffBuilder.RedactedPlaceholder, parsed[1].NewValue);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            new ChangeAuditDiffBuilder().Compare("passwordHash", "old", "new"));
+        Assert.Throws<InvalidOperationException>(() =>
+            new ChangeAuditDiffBuilder().RecordCreated("client_secret", "abc"));
     }
 
     private sealed class InMemoryXmlRepository(List<System.Xml.Linq.XElement> elements)

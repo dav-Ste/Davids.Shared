@@ -21,7 +21,7 @@ To work on a single service without the full Aspire stack, clone only `Davids.Sh
 ## Projects & shared engineering configuration
 
 - `eng/Davids.Common.props`: Centralized MSBuild baseline (`net10.0`, `<Nullable>enable</Nullable>`, `<UseArtifactsOutput>true</UseArtifactsOutput>` routing build/intermediate/publish outputs to `<RepoRoot>/artifacts/`, `TreatWarningsAsErrors`, `NuGetAudit` with `NU1900`–`NU1904` as errors, `AnalysisModeSecurity=All`, and `RestorePackagesWithLockFile=true`) imported by `Directory.Build.props` across all 7 repositories.
-- `src/Davids.ServiceDefaults`: `AddServiceDefaults(...)`, `DavidsSecurityMetrics` (`Davids.Security.Audit` meter), `AesGcmDataProtectionXmlEncryptor`, trusted CIDR/IP `ForwardedHeadersMiddleware`, and `MapDefaultEndpoints()` (`/health` and `/alive`).
+- `src/Davids.ServiceDefaults`: `AddServiceDefaults(...)`, `DavidsSecurityContracts` (`WorkforceRoles`, `VerifiedActorHeaders`, `ChangeAuditDiffBuilder`), `DavidsSecurityMetrics` (`Davids.Security.Audit` meter including `davids.security.change_audit`), `AesGcmDataProtectionXmlEncryptor`, trusted CIDR/IP `ForwardedHeadersMiddleware`, and `MapDefaultEndpoints()` (`/health` and `/alive`).
 - `tests/Davids.ServiceDefaults.Tests`: Unit, architecture, and in-memory `TestServer` verification (`[Trait("Category", "Unit" | "Integration")]`) for OpenTelemetry exporters, Data Protection encryption-at-rest, health probes, and fail-closed sink validation.
 
 ## Build, test & NuGet package mode (`UseSharedPackageReference`)
@@ -53,4 +53,5 @@ All 5 consumer repositories (`Davids.Services.Identity`, `Davids.Services.AdminI
 - [`Davids.Services.Identity`](https://github.com/dav-Ste/Davids.Services.Identity) — Customer OpenIddict `RS256` OIDC Provider (`identitydb`)
 - [`Davids.Services.AdminIdentity`](https://github.com/dav-Ste/Davids.Services.AdminIdentity) — Administrator OpenIddict `RS256` OIDC Provider (`adminidentitydb`)
 - [`Davids.Services.Customers`](https://github.com/dav-Ste/Davids.Services.Customers) — Customer profiles & order tracking API (`customersdb`)
-- [`Davids.Frontend.Admin`](https://github.com/dav-Ste/Davids.Frontend.Admin) — Passwordless Admin customer search & editing web UI
+- [`Davids.Frontend.Admin`](https://github.com/dav-Ste/Davids.Frontend.Admin) — Passwordless Workforce RBAC customer, IAM & audit web UI
+- [`Davids.Frontend.Web`](https://github.com/dav-Ste/Davids.Frontend.Web) — Customer Self-Service Web Portal (`CustomerBffCookie` PKCE `S256` BFF)

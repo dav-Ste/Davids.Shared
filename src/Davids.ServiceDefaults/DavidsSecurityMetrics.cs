@@ -30,7 +30,13 @@ public static class DavidsSecurityMetrics
         AuditMeter.CreateCounter<long>(
             "davids.security.bff_csrf_rejected",
             unit: "{request}",
-            description: "Total cookie-authenticated Administrator BFF requests rejected by CSRF defenses.");
+            description: "Total cookie-authenticated BFF requests rejected by CSRF defenses.");
+
+    private static readonly Counter<long> ChangeAuditCounter =
+        AuditMeter.CreateCounter<long>(
+            "davids.security.change_audit",
+            unit: "{event}",
+            description: "Total transactional customer and employee data/account change audit entries recorded.");
 
     public static void RecordLoginAudit(string? domain, string? outcome, bool succeeded)
     {
@@ -63,5 +69,14 @@ public static class DavidsSecurityMetrics
             1,
             new KeyValuePair<string, object?>("service", service ?? "unknown"),
             new KeyValuePair<string, object?>("endpoint", endpoint ?? "unknown"));
+    }
+
+    public static void RecordChangeAudit(string? service, string? action, string? actorAuthority)
+    {
+        ChangeAuditCounter.Add(
+            1,
+            new KeyValuePair<string, object?>("service", service ?? "unknown"),
+            new KeyValuePair<string, object?>("action", action ?? "unknown"),
+            new KeyValuePair<string, object?>("actor_authority", actorAuthority ?? "unknown"));
     }
 }
