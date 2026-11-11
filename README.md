@@ -2,7 +2,7 @@
 
 | Pull Request CI | CodeQL SAST | Platform Architecture & Orchestration |
 |---|---|---|
-| [![Pull Request CI — Security Gate](https://github.com/dav-Ste/Davids.Shared/actions/workflows/pull-request-ci.yml/badge.svg?branch=main)](https://github.com/dav-Ste/Davids.Shared/actions/workflows/pull-request-ci.yml) | [![Pull Request CI — CodeQL SAST](https://github.com/dav-Ste/Davids.Shared/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/dav-Ste/Davids.Shared/actions/workflows/codeql.yml) | [**`Davids` — Architecture & Security Diagram**](https://github.com/dav-Ste/Davids#architecture-project-relationships--security-posture) |
+| [![CI — Build, Tests & Security](https://github.com/dav-Ste/Davids.Shared/actions/workflows/pull-request-ci.yml/badge.svg?branch=main)](https://github.com/dav-Ste/Davids.Shared/actions/workflows/pull-request-ci.yml) | [![CodeQL — PR, Main & Weekly SAST](https://github.com/dav-Ste/Davids.Shared/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/dav-Ste/Davids.Shared/actions/workflows/codeql.yml) | [**`Davids` — Architecture & Security Diagram**](https://github.com/dav-Ste/Davids#architecture-project-relationships--security-posture) |
 
 `Davids.Shared` is the standalone `.NET 10` shared library repository (`Davids.Shared.slnx`) hosting `Davids.ServiceDefaults` — the cross-cutting host defaults (health/liveness endpoints, OpenTelemetry metrics/tracing/logging exporters, `Davids.Security.Audit` security telemetry counters, hardened `ForwardedHeadersMiddleware`, isolated AES-256-GCM / X.509 ASP.NET Core Data Protection encryption-at-rest, `Microsoft.Extensions.ServiceDiscovery`, and optional Serilog sinks) shared across all five Davids runtime services and frontends.
 
